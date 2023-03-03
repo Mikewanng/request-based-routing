@@ -17,8 +17,13 @@ class Alg1:
         #寻找可用路径
         feasiblepath=Dijkstra().kspf(g,req[0],req[1])
         #找出最小代价的路径
+        if feasiblepath==[]:
+            Topo().TopoFilter(g,req,1)
+            feasiblepath=Dijkstra().kspf(g,req[0],req[1])
+        if feasiblepath==[]:
+            return NULL
         mincost=0
-        path= NULL
+        
         for i in range(len(feasiblepath)):
             if i==0:
                 mincost= Cost().cost1(feasiblepath[i])
