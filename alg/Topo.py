@@ -37,7 +37,7 @@ class Topo(object):#定义拓扑
         return self.topo
 
 
-    def CreatNodeEdgeSet(self,basic_node_edge_set,c=50,rate=100,option=0 ):#option=0默认为无向图 将点边集合增加边的属性
+    def CreatNodeEdgeSet(self,basic_node_edge_set,c=200,rate=100,option=0 ):#option=0默认为无向图 将点边集合增加边的属性
         newedge=[] #存储Link结构的边
         newnode=[] #存储节点
 
@@ -55,25 +55,25 @@ class Topo(object):#定义拓扑
         if flag==0:
             for i in range(len(g)):
                 for j in g[i]:
-                    if j.c<req[2]:
+                    if j.Is_connected==True and j.c<req[2] :
                         j.dellink()
         elif flag==1:
             for i in range(len(g)):
                 for j in g[i]:
-                    if j.rate<req[3]:
+                    if j.Is_connected==True and j.rate<req[3]:
                         j.dellink()
         else:
              if req[2] is NULL: #说明只对密钥速率有需求
                 for i in range(len(g)):
                     for j in g[i]:
-                        if j.rate<req[3]:
+                        if j.Is_connected==True and j.rate<req[3]:
                             j.dellink()
              elif req[3] is NULL: #说明只对密钥量有需求
                  pass
              else:  #说明对两者都有需求
                  for i in range(len(g)):
                     for j in g[i]:
-                        if j.rate+j.c/req[2]<req[3]:
+                        if j.Is_connected==True and j.rate+j.c/req[2]<req[3]:
                             j.dellink()
                 
        
@@ -107,13 +107,13 @@ class Topo(object):#定义拓扑
                         g[0][j][i].dellink()
     def Toporeduce(self,g):#将邻接矩阵化为邻接表
         tmptopo=[]
-        for i in g[0]:
+        for i in g:
             t=[]
             for j in range(len(i)):
                 if i[j].fr != None:
-                    t.append([i[j].to,g[1][j]])
+                    t.append([i[j].to,1])
             tmptopo.append(t)
-        return [tmptopo,g[1]]
+        return tmptopo
 
     def Toporeducehop(self,g):#将邻接矩阵化为hop邻接表
         tmptopo=[]

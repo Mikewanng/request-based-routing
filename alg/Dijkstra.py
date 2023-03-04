@@ -28,10 +28,12 @@ class Dijkstra:
             return [des]
         self._passed.append(source)
         self.topo=topo
-        self._visited=[0]*len(topo[0])
-
+        self._visited=[0]*len(topo)
+        self._cost=[]
+        self._prev=[]
+        self._visited[source]=1
         #初始化前驱列表以及代价
-        for i in range(len(topo[0])):
+        for i in range(len(topo)):
             if i==source:
                 self._cost.append(0)
             else:
@@ -39,7 +41,7 @@ class Dijkstra:
             self._prev.append(-1)
         
         heap=[]
-        for i in self.topo[0][source]:
+        for i in self.topo[source]:
             self._prev[i[0]]=source
             self._cost[i[0]]=i[1]
             heapq.heappush(heap,(i[1],i[0]))  #跳数作为cost
@@ -50,7 +52,7 @@ class Dijkstra:
             if self._visited[tmpe[1]]==1:#如果该点已到过，就进行下一次循环
                 continue
             self._visited[tmpe[1]]=1
-            for i in self.topo[0][tmpe[1]]:
+            for i in self.topo[tmpe[1]]:
                 if self._cost[tmpe[1]]+i[1]<self._cost[i[0]]:
                     self._cost[i[0]]=self._cost[tmpe[1]]+i[1]
                     self._prev[i[0]]=tmpe[1]
@@ -66,7 +68,7 @@ class Dijkstra:
         ng=g
         self.aset=[]
         self.bset=[]
-        li=self.dijkstra(copy.deepcopy(ng),source,des)
+        li=self.hopdijkstra(copy.deepcopy(ng),source,des)
         if len(li):
             self.aset.append(li)
         else:
@@ -78,8 +80,16 @@ class Dijkstra:
                 curroot=self.aset[-1][i+1]
                 pathahead=self.aset[-1][0:i]
 		        #将当前边cost设为无穷大
-                tmpg[self.aset[-1][i]][self.aset[-1][i+1]]=sys.maxsize/2
-                tmpg[self.aset[-1][i+1]][self.aset[-1][i]]=sys.maxsize/2
+                for listi in tmpg[self.aset[-1][i]]:
+                    if listi[0]==self.aset[-1][i+1]:
+                        listi[1]=sys.maxsize/2
+                        break
+                for listi in tmpg[self.aset[-1][i+1]]:
+                    if listi[0]==self.aset[-1][i]:
+                        listi[1]=sys.maxsize/2
+                        break
+                #tmpg[self.aset[-1][i]][self.aset[-1][i+1]]=sys.maxsize/2
+                #tmpg[self.aset[-1][i+1]][self.aset[-1][i]]=sys.maxsize/2
                 path=self.hopdijkstra(tmpg,curnode,des)
                 if len(path):
                     sumpath=pathahead+path

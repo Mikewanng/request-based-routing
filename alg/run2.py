@@ -5,8 +5,7 @@ from Net import *
 from Alg1 import *
 from RandomRouting import *
 from Alg2 import *
-from Securitylevel import *
-from consume import *
+
 import copy,random,time
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
