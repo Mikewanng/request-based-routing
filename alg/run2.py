@@ -1,134 +1,189 @@
-﻿#随机可信中继，随机拓扑，随机请求  可信中继数量
+﻿#请求的密钥量需求增加
 
+from ctypes.wintypes import INT
 from Topo import *
 from Net import *
 from Alg1 import *
-from RandomRouting import *
 from Alg2 import *
-
 import copy,random,time
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from openpyxl import Workbook
 import numpy as np
-run_time=500  #运行次数
 
-a=0.28
-b=3
-nodenum=50
-nodesp=0.8
-filename='MaxSp_vs_TrNode'+str(run_time)+'nodesp='+str(nodesp)+'a='+str(a)+"b="+str(b)+"nodenum="+str(nodenum)+'.txt'
-fp = open(filename, 'w')
-fp.write('Trnode    aveMaxSp_random    aveMaxSp_sgr    资源利用率_random    资源利用率_sgr    重构0.9后密钥量_random    重构0.9后密钥量_sgr    重构0.7后密钥量_random    重构0.7后密钥量_sgr    重构0.9后密钥量_random    重构0.9后密钥量_sgr    重构0.5后密钥量_random    重构0.5后密钥量_sgr\n')
-trnode=np.arange(2,20,2)
+#参数初始化
+run_round=1000  #运行次数
+a=0.5
+b=0.5
+nodenum=50 #节点数量
+reqkeyrate=100
 
-#最大安全性
-avemaxsp_random=[0]*len(trnode)
-avemaxsp_sgr=[0]*len(trnode)
-#资源利用率
-resource_consume_random=[0]*len(trnode)
-resource_consume_sgr=[0]*len(trnode)
-#重构后密钥量0.9
-keynum_9_random=[0]*len(trnode)
-keynum_9_sgr=[0]*len(trnode)
 
-keynum_7_random=[0]*len(trnode)
-keynum_7_sgr=[0]*len(trnode)
 
-keynum_5_random=[0]*len(trnode)
-keynum_5_sgr=[0]*len(trnode)
+reqkeynum=np.arange(50,500,50)
+#数据统计
+#请求满足
+sraqa=[0]*len(reqkeynum)
+srkod=[0]*len(reqkeynum)
+sr2=[0]*len(reqkeynum)
+#吞吐量
+thaqa=[0]*len(reqkeynum)
+thkod=[0]*len(reqkeynum)
+th2=[0]*len(reqkeynum)
+cthaqa=[0]*len(reqkeynum)
+cthkod=[0]*len(reqkeynum)
+cth2=[0]*len(reqkeynum)
+#请求完成时间
+timeaqa=[0]*len(reqkeynum)
+timekod=[0]*len(reqkeynum)
+time2=[0]*len(reqkeynum)
+ctimeaqa=[0]*len(reqkeynum)
+ctimekod=[0]*len(reqkeynum)
+ctime2=[0]*len(reqkeynum)
+#密钥消耗量
+keyconaqa=[0]*len(reqkeynum)
+keyconkod=[0]*len(reqkeynum)
+keycon2=[0]*len(reqkeynum)
+ckeyconaqa=[0]*len(reqkeynum)
+ckeyconkod=[0]*len(reqkeynum)
+ckeycon2=[0]*len(reqkeynum)
+#创建excel表
 
-#记录分段的次数
-segnum=[0]*len(trnode)
+#filename='1.xlsx'
+filename='keynum'+str(run_round)+'a-'+str(a)+"b-"+str(b)+"nodenum-"+str(nodenum)+'.xlsx'
+wb = Workbook()
+ws = wb.active
+
+
+
+head=["reqkeynum","SRaqa","SRkod","SR2","finishtimeaqa","finishtimekod","finishtime2","keyconaqa","keyconkod","keycon2","thaqa","thkod","th2"]
+ws.append(head)
+
+
 start_time=time.time()
-for count in range(run_time):
-    print("running process:",count*100/run_time,"%")
+for count in range(run_round):
+    print("running:",count,"round")
     if count!=0:
-        print("预计剩余时间为：",(time.time()-start_time)*(run_time-count)/count/60,"min")
-
+        print("预计剩余时间为：",(time.time()-start_time)*(run_round-count)/count/60,"min")
     random_topo=Topo().create_random_topology(nodenum,a,b) #随机拓扑生成：点边集合
-    source=random.randint(0,len(random_topo[0])-1)
-    des=random.randint(0,len(random_topo[0])-1)
+    NodeEdgeSet=Topo().CreatNodeEdgeSet(random_topo)
+    topo=Topo().CreatTopo(NodeEdgeSet)
+    Topo().Changelrate(topo,50,150)
+    Topo().Changelc(topo,50,1000)
+    source=random.randint(0,len(topo[0])-1)
+    des=random.randint(0,len(topo[0])-1)
+    #随机生成请求
+    """
+    flag=random.randint(1,3)
+    if flag==1:
+        req=[source,des,NULL ,random.randint(50,200)]
+    elif flag==2:
+        req=[source,des,random.randint(50,200),NULL]
+    else:
+        req=[source,des,random.randint(50,200),random.randint(50,200)]
+    """
     while des==source:
-        des=random.randint(0,len(random_topo[0])-1)
-    
+        des=random.randint(0,len(topo[0])-1)
 
-    for j in range(len(trnode)):
-        #更改可信节点数量
-        NodeEdgeSet=Topo().CreatNodeEdgeSet(random_topo,10,trnode[j],nodesp)
-        topo=Topo().CreatTopo(NodeEdgeSet)
+    for j in range(len(reqkeynum)):
+        #更改请求的密钥速率
+        flag=random.randint(1,3)
+        if flag==1:
+            req=[source,des,NULL ,reqkeyrate]
+        elif flag==2:
+            req=[source,des,reqkeynum[j],NULL]
+        else:
+            req=[source,des,reqkeynum[j],reqkeyrate]
+        #req=[source,des,600,reqkeyrate[j]]
         
 
         #算法运行
-        print("可信节点数量：",trnode[j])
-        tr=Rr().rrmaxs(copy.deepcopy(topo),source,des)
-        print(tr)
-        avemaxsp_random[j]+=tr[0][2]
-        resource_consume_random[j]+=Con().CalCon(tr)*2/len(random_topo[1])
-        keynum_9_random[j]+=Seclev().sl(tr,0.9)
-        keynum_7_random[j]+=Seclev().sl(tr,0.7)
-        keynum_5_random[j]+=Seclev().sl(tr,0.5)
-        
-        t2=Alg2().alg2max(copy.deepcopy(topo),source,des)
-        if len(t2)>1:
-            segnum[j]+=1
-        print(t2)
-        totalsp=1
-        for i in t2:
-            totalsp*=i[2]
-        avemaxsp_sgr[j]+=totalsp
-        resource_consume_sgr[j]+=Con().CalCon(t2)*2/len(random_topo[1])
-        keynum_9_sgr[j]+=Seclev().sl(t2,0.9)
-        keynum_7_sgr[j]+=Seclev().sl(t2,0.7)
-        keynum_5_sgr[j]+=Seclev().sl(t2,0.5)
+        print("请求：",req,"kb/s")
+        path1=Alg1().ada(copy.deepcopy(topo),req)
+        print(path1)
+        if path1 is not NULL:
+            sraqa[j]+=1
+            if Cost().timecost(topo,path1,req)!=-1:
+                ctimeaqa[j]+=1
+                timeaqa[j]+=Cost().timecost(topo,path1,req)
+            if Cost().th(topo,path1,req)>0:
+                cthaqa[j]+=1
+                thaqa[j]+=Cost().th(topo,path1,req)
+            if Cost().keycon(topo,path1,req)>0:
+                ckeyconaqa[j]+=1
+                keyconaqa[j]+=Cost().keycon(topo,path1,req)
 
-for j in range(len(trnode)):
-    avemaxsp_random[j]/=run_time
-    avemaxsp_sgr[j]/=run_time
-   
-    resource_consume_random[j]/=run_time
-    resource_consume_sgr[j]/=run_time
-   
-    keynum_9_random[j]/=run_time
-    keynum_9_sgr[j]/=run_time
+        path0=Alg1().kod(copy.deepcopy(topo),req)
+        print(path0)
+        if path0 is not NULL:
+            srkod[j]+=1
+            if Cost().timecost(topo,path0,req)!=-1:
+                ctimekod[j]+=1
+                timekod[j]+=Cost().timecost(topo,path0,req)
+            if Cost().th(topo,path0,req)>0:
+                cthkod[j]+=1
+                thkod[j]+=Cost().th(topo,path0,req)
+            if Cost().keycon(topo,path0,req)>0:
+                ckeyconkod[j]+=1
+                keyconkod[j]+=Cost().keycon(topo,path0,req)
 
-    keynum_7_random[j]/=run_time
-    keynum_7_sgr[j]/=run_time
+        path2=Alg2().alg2(copy.deepcopy(topo),req)
+        print(path2)
+        if path2 is not NULL:
+            sr2[j]+=1
+            if Cost().timecost(topo,path2,req)!=-1:
+                ctime2[j]+=1
+                time2[j]+=Cost().timecost(topo,path2,req)
+            if Cost().th(topo,path2,req)>0:
+                cth2[j]+=1
+                th2[j]+=Cost().th(topo,path2,req)
+            if Cost().keycon(topo,path2,req)>0:
+                ckeycon2[j]+=1
+                keycon2[j]+=Cost().keycon(topo,path2,req)
 
-    keynum_5_random[j]/=run_time
-    keynum_5_sgr[j]/=run_time
+for i in range(len(reqkeynum)):
+    sraqa[i]/=run_round
+    srkod[i]/=run_round
+    sr2[i]/=run_round
 
+    if ctimeaqa[i]>0:
+        timeaqa[i]/=ctimeaqa[i]
+    if ctimekod[i]>0:
+        timekod[i]/=ctimekod[i]
+    if ctime2[i]>0:
+        time2[i]/=ctime2[i]
+    
+    if cthaqa[i]>0:
+        thaqa[i]/=cthaqa[i]
+    if cthkod[i]>0:
+        thkod[i]/=cthkod[i]
+    if cth2[i]>0:
+        th2[i]/=cth2[i]
 
-for j in range(len(trnode)):
-    fp.write(str(trnode[j])+'    '+str(avemaxsp_random[j])+'    '+str(avemaxsp_sgr[j])+'    '+str(resource_consume_random[j])+'    '+str(resource_consume_sgr[j])+'    '+str(keynum_9_random[j])+'    '+str(keynum_9_sgr[j])+'    '+str(keynum_7_random[j])+'    '+str(keynum_7_sgr[j])+'    '+str(keynum_5_random[j])+'    '+str(keynum_5_sgr[j])+'\n')
+    if ckeyconaqa[i]>0:
+        keyconaqa[i]/=ckeyconaqa[i]
+    if ckeyconkod[i]>0:
+        keyconkod[i]/=ckeyconkod[i]
+    if ckeycon2[i]>0:
+        keycon2[i]/=ckeycon2[i]
 
-for j in segnum:
-    fp.write(str(j)+"    ")
-fp.close()
-#最大安全概率
+    ws.append([reqkeynum[i],sraqa[i],srkod[i],sr2[i],timeaqa[i],timekod[i],time2[i],keyconaqa[i],keyconkod[i],keycon2[i],thaqa[i],thkod[i],th2[i]])
+
+wb.save(filename)
 fig = plt.figure()
-plt.plot(trnode,avemaxsp_random,color='red')
-plt.plot(trnode,avemaxsp_sgr,color='green')
-plt.title("Max Security probability")
-plt.xlabel('nodesp')
-plt.ylabel('max Security probability')
+plt.plot(reqkeynum,sraqa,color='red')
+plt.plot(reqkeynum,srkod,color='green')
+plt.plot(reqkeynum,sr2,color='blue')
+plt.title("req sastify rate")
+plt.xlabel('reqkeynum')
+plt.ylabel('sastify rate')
 plt.show()
 #资源利用率
 fig = plt.figure()
-plt.plot(trnode,resource_consume_random,color='red')
-plt.plot(trnode,resource_consume_sgr,color='green')
-plt.title("Resource utilization")
-plt.xlabel('nodesp')
-plt.ylabel('Resource utilization')
-plt.show()
-#不同安全概率阈值下的密钥分发速率
-fig = plt.figure()
-plt.plot(trnode,keynum_9_random,color='red')
-plt.plot(trnode,keynum_9_sgr,color='green')
-plt.plot(trnode,keynum_7_random,color='red')
-plt.plot(trnode,keynum_7_sgr,color='green')
-plt.plot(trnode,keynum_5_random,color='red')
-plt.plot(trnode,keynum_5_sgr,color='green')
-plt.title("Key rate")
-plt.xlabel('nodesp')
-plt.ylabel('Key rate')
+plt.plot(reqkeynum,timeaqa,color='red')
+plt.plot(reqkeynum,timekod,color='green')
+plt.plot(reqkeynum,time2,color='blue')
+plt.title("req finish time")
+plt.xlabel('reqkeynum')
+plt.ylabel('finish time')
 plt.show()

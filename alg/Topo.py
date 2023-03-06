@@ -44,12 +44,25 @@ class Topo(object):#定义拓扑
         newnode=basic_node_edge_set[0]
             
         for edge in basic_node_edge_set[1]:
-            if option==1:
-                newedge.append(Link(edge[0],edge[1],c,rate))
-            else:
-                newedge.append(Link(edge[0],edge[1],c,rate))
-                newedge.append(Link(edge[1],edge[0],c,rate))
+            
+            newedge.append(Link(edge[0],edge[1],c,rate))
+            
         return [newnode,newedge] 
+    def Changelrate(self,topo,a=0,b=100):#随机生成链路的密钥速率
+        for i in range(len(topo)):
+           for j in range(i):
+               c=random.randint(a,b)
+               topo[i][j].rate=c
+               topo[j][i].rate=c
+
+    def Changelc(self,topo,a=0,b=100):#随机生成链路的密钥量
+        for i in range(len(topo)):
+           for j in range(i):
+               b=random.randint(a,b)
+               topo[i][j].c=b
+               topo[j][i].c=b
+           
+          
 
     def TopoFilter(self,g,req,flag):#删去不符合需求的链路req=(s,d,keyvo,keyrate) flag:0表示筛选密钥量，1表示密钥速率，否则为智能筛选
         if flag==0:
@@ -73,7 +86,7 @@ class Topo(object):#定义拓扑
              else:  #说明对两者都有需求
                  for i in range(len(g)):
                     for j in g[i]:
-                        if j.Is_connected==True and j.rate+j.c/req[2]<req[3]:
+                        if j.Is_connected==True and j.rate+j.c*req[3]/req[2]<req[3]:
                             j.dellink()
                 
        

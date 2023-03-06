@@ -1,5 +1,6 @@
 ﻿#请求的密钥速率需求增加
 
+from ctypes.wintypes import INT
 from Topo import *
 from Net import *
 from Alg1 import *
@@ -11,30 +12,52 @@ from openpyxl import Workbook
 import numpy as np
 
 #参数初始化
-run_round=100  #运行次数
+run_round=1000  #运行次数
 a=0.5
 b=0.5
-nodenum=50  #节点数量
+nodenum=50 #节点数量
+reqkeynum=600
 
 #请求响应率 随着请求的密钥速率增加
 
 reqkeyrate=np.arange(50,500,50)
 #数据统计
-sr1=[0]*len(reqkeyrate)
+#请求满足
+sraqa=[0]*len(reqkeyrate)
+srkod=[0]*len(reqkeyrate)
 sr2=[0]*len(reqkeyrate)
+#吞吐量
+thaqa=[0]*len(reqkeyrate)
+thkod=[0]*len(reqkeyrate)
+th2=[0]*len(reqkeyrate)
+cthaqa=[0]*len(reqkeyrate)
+cthkod=[0]*len(reqkeyrate)
+cth2=[0]*len(reqkeyrate)
+#请求完成时间
+timeaqa=[0]*len(reqkeyrate)
+timekod=[0]*len(reqkeyrate)
+time2=[0]*len(reqkeyrate)
+ctimeaqa=[0]*len(reqkeyrate)
+ctimekod=[0]*len(reqkeyrate)
+ctime2=[0]*len(reqkeyrate)
+#密钥消耗量
+keyconaqa=[0]*len(reqkeyrate)
+keyconkod=[0]*len(reqkeyrate)
+keycon2=[0]*len(reqkeyrate)
+ckeyconaqa=[0]*len(reqkeyrate)
+ckeyconkod=[0]*len(reqkeyrate)
+ckeycon2=[0]*len(reqkeyrate)
 #创建excel表
 
-
-filename='keyrate'+str(run_round)+'a='+str(a)+"b="+str(b)+"nodenum="+str(nodenum)+'time'+str(time.time())+'.xlsx'
-#wb = Workbook()
-#ws = wb.active
-
-
-
-fp = open(filename, 'w')
-fp.write('NodeSp    aveMaxSp_random    aveMaxSp_sgr    资源利用率_random    资源利用率_sgr    重构0.9后密钥量_random    重构0.9后密钥量_sgr    重构0.7后密钥量_random    重构0.7后密钥量_sgr    重构0.9后密钥量_random    重构0.9后密钥量_sgr    重构0.5后密钥量_random    重构0.5后密钥量_sgr\n')
+#filename='1.xlsx'
+filename='keyrate'+str(run_round)+'a-'+str(a)+"b-"+str(b)+"nodenum-"+str(nodenum)+'.xlsx'
+wb = Workbook()
+ws = wb.active
 
 
+
+head=["reqkeyrate","SRaqa","SRkod","SR2","finishtimeaqa","finishtimekod","finishtime2","keyconaqa","keyconkod","keycon2","thaqa","thkod","th2"]
+ws.append(head)
 
 
 start_time=time.time()
@@ -45,6 +68,8 @@ for count in range(run_round):
     random_topo=Topo().create_random_topology(nodenum,a,b) #随机拓扑生成：点边集合
     NodeEdgeSet=Topo().CreatNodeEdgeSet(random_topo)
     topo=Topo().CreatTopo(NodeEdgeSet)
+    Topo().Changelrate(topo,50,300)
+    Topo().Changelc(topo,500,1500)
     source=random.randint(0,len(topo[0])-1)
     des=random.randint(0,len(topo[0])-1)
     #随机生成请求
@@ -62,31 +87,103 @@ for count in range(run_round):
 
     for j in range(len(reqkeyrate)):
         #更改请求的密钥速率
-        req=[source,des,600 ,reqkeyrate[j]]
+        flag=random.randint(1,3)
+        if flag==1:
+            req=[source,des,NULL ,reqkeyrate[j]]
+        elif flag==2:
+            req=[source,des,reqkeynum,NULL]
+        else:
+            req=[source,des,reqkeynum,reqkeyrate[j]]
+        #req=[source,des,600,reqkeyrate[j]]
         
 
         #算法运行
         print("请求：",req,"kb/s")
-        path1=Alg1().alg1(copy.deepcopy(topo),req)
+        path1=Alg1().ada(copy.deepcopy(topo),req)
         print(path1)
         if path1 is not NULL:
-            sr1[j]+=1
+            sraqa[j]+=1
+            if Cost().timecost(topo,path1,req)!=-1:
+                ctimeaqa[j]+=1
+                timeaqa[j]+=Cost().timecost(topo,path1,req)
+            if Cost().th(topo,path1,req)>0:
+                cthaqa[j]+=1
+                thaqa[j]+=Cost().th(topo,path1,req)
+            if Cost().keycon(topo,path1,req)>0:
+                ckeyconaqa[j]+=1
+                keyconaqa[j]+=Cost().keycon(topo,path1,req)
 
+        path0=Alg1().kod(copy.deepcopy(topo),req)
+        print(path0)
+        if path0 is not NULL:
+            srkod[j]+=1
+            if Cost().timecost(topo,path0,req)!=-1:
+                ctimekod[j]+=1
+                timekod[j]+=Cost().timecost(topo,path0,req)
+            if Cost().th(topo,path0,req)>0:
+                cthkod[j]+=1
+                thkod[j]+=Cost().th(topo,path0,req)
+            if Cost().keycon(topo,path0,req)>0:
+                ckeyconkod[j]+=1
+                keyconkod[j]+=Cost().keycon(topo,path0,req)
 
         path2=Alg2().alg2(copy.deepcopy(topo),req)
         print(path2)
         if path2 is not NULL:
             sr2[j]+=1
+            if Cost().timecost(topo,path2,req)!=-1:
+                ctime2[j]+=1
+                time2[j]+=Cost().timecost(topo,path2,req)
+            if Cost().th(topo,path2,req)>0:
+                cth2[j]+=1
+                th2[j]+=Cost().th(topo,path2,req)
+            if Cost().keycon(topo,path2,req)>0:
+                ckeycon2[j]+=1
+                keycon2[j]+=Cost().keycon(topo,path2,req)
 
 for i in range(len(reqkeyrate)):
-    sr1[i]/=run_round
+    sraqa[i]/=run_round
+    srkod[i]/=run_round
     sr2[i]/=run_round
 
+    if ctimeaqa[i]>0:
+        timeaqa[i]/=ctimeaqa[i]
+    if ctimekod[i]>0:
+        timekod[i]/=ctimekod[i]
+    if ctime2[i]>0:
+        time2[i]/=ctime2[i]
+    
+    if cthaqa[i]>0:
+        thaqa[i]/=cthaqa[i]
+    if cthkod[i]>0:
+        thkod[i]/=cthkod[i]
+    if cth2[i]>0:
+        th2[i]/=cth2[i]
+
+    if ckeyconaqa[i]>0:
+        keyconaqa[i]/=ckeyconaqa[i]
+    if ckeyconkod[i]>0:
+        keyconkod[i]/=ckeyconkod[i]
+    if ckeycon2[i]>0:
+        keycon2[i]/=ckeycon2[i]
+
+    ws.append([reqkeyrate[i],sraqa[i],srkod[i],sr2[i],timeaqa[i],timekod[i],time2[i],keyconaqa[i],keyconkod[i],keycon2[i],thaqa[i],thkod[i],th2[i]])
+
+wb.save(filename)
 fig = plt.figure()
-plt.plot(reqkeyrate,sr1,color='red')
-plt.plot(reqkeyrate,sr2,color='green')
+plt.plot(reqkeyrate,sraqa,color='red')
+plt.plot(reqkeyrate,srkod,color='green')
+plt.plot(reqkeyrate,sr2,color='blue')
 plt.title("req sastify rate")
 plt.xlabel('reqkeyrate')
 plt.ylabel('sastify rate')
 plt.show()
 #资源利用率
+fig = plt.figure()
+plt.plot(reqkeyrate,timeaqa,color='red')
+plt.plot(reqkeyrate,timekod,color='green')
+plt.plot(reqkeyrate,time2,color='blue')
+plt.title("req finish time")
+plt.xlabel('reqkeyrate')
+plt.ylabel('finish time')
+plt.show()
