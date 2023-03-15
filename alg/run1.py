@@ -1,4 +1,4 @@
-﻿#请求的密钥速率需求增加
+﻿#请求的密钥量增加
 
 from ctypes.wintypes import INT
 from Topo import *
@@ -17,9 +17,9 @@ a=0.28
 b=3
 nodenum=50 #节点数量
 
-#请求响应率 随着请求的密钥速率增加
+#请求响应率 随着请求的密钥量增加
 
-reqkeyvol=np.arange(500,700,20)
+reqkeyvol=np.arange(150,250,10)
 #数据统计
 #请求满足
 sraqa=[0]*len(reqkeyvol)
@@ -67,8 +67,8 @@ for count in range(run_round):
     random_topo=Topo().create_random_topology(nodenum,a,b) #随机拓扑生成：点边集合
     NodeEdgeSet=Topo().CreatNodeEdgeSet(random_topo)
     topo=Topo().CreatTopo(NodeEdgeSet)
-    Topo().Changelrate(topo,50,150)  #链路生成速率
-    Topo().Changelc(topo,500,600)     #链路密钥池容量
+    Topo().Changelrate(topo,20,50)  #链路生成速率
+    Topo().Changelc(topo,100,200)     #链路密钥池容量
     source=random.randint(0,len(topo[0])-1)
     des=random.randint(0,len(topo[0])-1)
     #随机生成请求
@@ -105,16 +105,14 @@ for count in range(run_round):
                 print("time:",Cost().timecost(topo,path1,req))
                 ctimeaqa[j]+=1
                 timeaqa[j]+=Cost().timecost(topo,path1,req)
-                if Cost().timecost(topo,path1,req)>0:
-
-                    thaqa[j]+=req[2]/Cost().timecost(topo,path1,req)
+                thaqa[j]+=req[2]
                 
             
             if Cost().keycon(topo,path1,req)>0:
                 ckeyconaqa[j]+=1
                 keyconaqa[j]+=Cost().keycon(topo,path1,req)
 
-        path0=Alg1().kod(copy.deepcopy(topo),req)
+        path0=Alg1().spf(copy.deepcopy(topo),req)
         print(path0)
         if path0 is not NULL:
             srkod[j]+=1
@@ -122,9 +120,7 @@ for count in range(run_round):
                 print("time:",Cost().timecost(topo,path0,req))
                 ctimekod[j]+=1
                 timekod[j]+=Cost().timecost(topo,path0,req)
-                if Cost().timecost(topo,path0,req)>0:
-
-                    thkod[j]+=req[2]/Cost().timecost(topo,path0,req)
+                thkod[j]+=req[2]
             
             if Cost().keycon(topo,path0,req)>0:
                 ckeyconkod[j]+=1
@@ -142,10 +138,9 @@ for count in range(run_round):
                 print("time:",Cost().timecost(topo,path2,req))
                 ctime2[j]+=1
                 time2[j]+=Cost().timecost(topo,path2,req)
-                if Cost().timecost(topo,path2,req)>0:
-                    th2[j]+=req[2]/Cost().timecost(topo,path2,req)
+                th2[j]+=req[2]
             
-            
+             
             if Cost().keycon(topo,path2,req)>0:
                 ckeycon2[j]+=1
                 keycon2[j]+=Cost().keycon(topo,path2,req)
@@ -154,14 +149,18 @@ for i in range(len(reqkeyvol)):
     sraqa[i]/=run_round
     srkod[i]/=run_round
     sr2[i]/=run_round
-
+    
+    if timeaqa[i]>0:
+        thaqa[i]/=timeaqa[i]
+    if timekod[i]>0:
+        thkod[i]/=timekod[i]
+    if time2[i]>0:
+        th2[i]/=time2[i]
     timeaqa[i]/=run_round
     timekod[i]/=run_round
     time2[i]/=run_round
     
-    thaqa[i]/=run_round
-    thkod[i]/=run_round
-    th2[i]/=run_round
+    
     
 
     if ckeyconaqa[i]>0:

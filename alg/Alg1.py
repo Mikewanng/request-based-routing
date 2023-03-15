@@ -90,3 +90,15 @@ class Alg1:
                 return path
 
         return NULL
+
+    def spf(self,topo,req):#最短路径
+        if req[2]==NULL:
+            return NULL
+        g=topo
+        #转为邻接表
+        glist=Topo().Toporeduce(g)
+        #寻找可用路径
+        feasiblepath=Dijkstra().hopdijkstra(glist,req[0],req[1])
+       
+
+        return feasiblepath

@@ -51,16 +51,18 @@ class Topo(object):#定义拓扑
     def Changelrate(self,topo,a=0,b=100):#随机生成链路的密钥速率
         for i in range(len(topo)):
            for j in range(i):
-               c=random.randint(a,b)
-               topo[i][j].rate=c
-               topo[j][i].rate=c
+               if topo[i][j].Is_connected is True:
+                   c=random.randint(a,b)
+                   topo[i][j].rate=c
+                   topo[j][i].rate=c
 
     def Changelc(self,topo,a=0,b=100):#随机生成链路的密钥量
         for i in range(len(topo)):
            for j in range(i):
-               b=random.randint(a,b)
-               topo[i][j].c=b
-               topo[j][i].c=b
+               if topo[i][j].Is_connected is True:
+                   n=random.randint(a,b)
+                   topo[i][j].c=n
+                   topo[j][i].c=n
            
           
 
