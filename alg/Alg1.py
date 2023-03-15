@@ -20,12 +20,17 @@ class Alg1:
             glist=Topo().Toporeduce(g)
             #寻找可用路径
             feasiblepath=Dijkstra().kspf(glist,req[0],req[1])
-        elif req[3]==NULL:  #如果只对密钥量有需求
-            Topo().TopoFilter(g,req,0)
+        elif req[3]==NULL:  #如果只对密钥量有需求,先将
+            ng=copy.deepcopy(topo)
+            Topo().TopoFilter(ng,req,0)
             #转为邻接表
-            glist=Topo().Toporeduce(g)
+            glist=Topo().Toporeduce(ng)
             #寻找可用路径
             feasiblepath=Dijkstra().kspf(glist,req[0],req[1])
+            #找出最小代价的路径
+            if feasiblepath==[]:
+                glist=Topo().Toporeduce(g)
+                feasiblepath=Dijkstra().kspf(glist,req[0],req[1])
         else:
             ng=copy.deepcopy(topo)
             Topo().TopoFilter(ng,req,0)

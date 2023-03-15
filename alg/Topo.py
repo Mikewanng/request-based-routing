@@ -86,8 +86,9 @@ class Topo(object):#定义拓扑
              else:  #说明对两者都有需求
                  for i in range(len(g)):
                     for j in g[i]:
-                        if j.Is_connected==True and j.rate+j.c*req[3]/req[2]<req[3]:
-                            j.dellink()
+                        if j.Is_connected==True:
+                           if j.rate+j.c*req[3]/req[2]<req[3]:
+                                j.dellink()
                 
        
 

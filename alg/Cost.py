@@ -32,13 +32,13 @@ class Cost(object):#定义边
         if req[2]==NULL:
             return -1
         elif req[3]==NULL:
-            return 0
+            return (req[2]-minkeyvo)/minkeyrate
         else:
             return (req[2]-minkeyvo)/req[3]
             
         
 
-    def cost2(self,g,path,pathset,a=0.4,b=0.6):
+    def cost2(self,g,path,pathset,req,a=0.4,b=0.6):
          #找到最小的链路密钥量
         minkeyvo= MAXINT
         for i in range(len(path)-1):
@@ -48,9 +48,13 @@ class Cost(object):#定义边
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate , g[path[i]][path[i+1]].rate)
         
-        cost=(b* minkeyrate+a*minkeyvo)*(len(path)-1)/(len(pathset[0])-1)
+        if req[2]==NULL:
+            cost=minkeyrate*(len(path)-1)/(len(pathset[0])-1)
+        else:
+            cost=(req[2]-minkeyvo)*(len(path)-1)/(len(pathset[0])-1)
 
-        return 0
+        
+        return cost
 
     def issastify(self,g,path,req):
          #找到最小的链路密钥量
@@ -95,7 +99,7 @@ class Cost(object):#定义边
 
         if req[2]==NULL: #如果请求中只包含速率
             return 0
-        elif req[3]==NULL: #否则只看密钥池
+        elif req[3]==NULL: #否则只看密钥量
             return req[2]*(len(path)-1)
         else:
             return req[2]*(len(path)-1)

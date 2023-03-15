@@ -25,10 +25,10 @@ class Alg2:
         
         for i in range(len(feasiblepath)):
             if i==0:
-                mincost= Cost().cost2(g,feasiblepath[i],feasiblepath)
+                mincost= Cost().cost2(g,feasiblepath[i],feasiblepath,req)
                 path= feasiblepath[i]
             else:
-                c=Cost().cost2(g,feasiblepath[i],feasiblepath)
+                c=Cost().cost2(g,feasiblepath[i],feasiblepath,req)
                 if c< mincost:
                     mincost= c
                     path= feasiblepath[i]
