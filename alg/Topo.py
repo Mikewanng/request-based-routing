@@ -85,11 +85,11 @@ class Topo(object):#定义拓扑
                             j.dellink()
              elif req[3] is NULL: #说明只对密钥量有需求
                  pass
-             else:  #说明对两者都有需求
+             else:  #说明对两者都有需求,密钥池能满足或者密钥池跟链路配和
                  for i in range(len(g)):
                     for j in g[i]:
                         if j.Is_connected==True:
-                           if j.rate+j.c*req[3]/req[2]<req[3]:
+                           if j.c<req[2] and j.rate+j.c*req[3]/req[2]<req[3]:
                                 j.dellink()
                 
        

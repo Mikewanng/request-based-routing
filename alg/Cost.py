@@ -2,19 +2,19 @@ from asyncio.windows_events import NULL
 from xmlrpc.client import MAXINT
 
 
-class Cost(object):#¶¨Òå±ß
+class Cost(object):#ï¿½ï¿½ï¿½ï¿½ï¿½
 
     def __init__(self):
         pass
 
     def cost1(self,g,path,a=0.4,b=0.5):
         cost=0
-        #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+        #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo , g[path[i]][path[i+1]].c)
             cost+=1/g[path[i]][path[i+1]].c
-        #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Éú³ÉËÙÂÊ
+        #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         minkeyrate= MAXINT
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate , g[path[i]][path[i+1]].rate)
@@ -22,11 +22,11 @@ class Cost(object):#¶¨Òå±ß
         #cost=(1/minkeyvo)+(1/minkeyrate)
         return cost
     def timecost(self,g,path,req):
-        #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+        #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo, g[path[i]][path[i+1]].c)
-        #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Éú³ÉËÙÂÊ
+        #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         minkeyrate= MAXINT
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate, g[path[i]][path[i+1]].rate)
@@ -41,11 +41,11 @@ class Cost(object):#¶¨Òå±ß
         
 
     def cost2(self,g,path,pathset,req,a=0.4,b=0.6):
-         #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+         #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo, g[path[i]][path[i+1]].c)
-        #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Éú³ÉËÙÂÊ
+        #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         minkeyrate= MAXINT
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate , g[path[i]][path[i+1]].rate)
@@ -59,21 +59,21 @@ class Cost(object):#¶¨Òå±ß
         return cost
 
     def issastify(self,g,path,req):
-         #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+         #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo, g[path[i]][path[i+1]].c)
         
-        if req[3]!=NULL: #Èç¹ûÇëÇóÖĞ°üº¬ËÙÂÊÔòÎŞ·¨Âú×ã
+        if req[3]!=NULL: #ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ş·ï¿½ï¿½ï¿½ï¿½ï¿½
             return False
-        else: #·ñÔòÖ»¿´ÃÜÔ¿³Ø
+        else: #ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½
             if minkeyvo >= req[2]:
                 return True
         
         return False
 
     def th(self,g,path,req):
-         #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+         #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo, g[path[i]][path[i+1]].c)
@@ -82,15 +82,15 @@ class Cost(object):#¶¨Òå±ß
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate , g[path[i]][path[i+1]].rate)
 
-        if req[2]==NULL: #Èç¹ûÇëÇóÖĞÖ»°üº¬ËÙÂÊ
+        if req[2]==NULL: #ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             return req[3]
-        elif req[3]==NULL: #·ñÔòÖ»¿´ÃÜÔ¿³ØÊıÁ¿£¬´ËÊ±²»¼ÆËãÍÌÍÂÁ¿
+        elif req[3]==NULL: #ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             return 0
         else:
             return req[3]
 
     def keycon(self,g,path,req):
-         #ÕÒµ½×îĞ¡µÄÁ´Â·ÃÜÔ¿Á¿
+         #ï¿½Òµï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½Ô¿ï¿½ï¿½
         minkeyvo= MAXINT
         for i in range(len(path)-1):
             minkeyvo = min (minkeyvo, g[path[i]][path[i+1]].c)
@@ -99,9 +99,9 @@ class Cost(object):#¶¨Òå±ß
         for i in range(len(path)-1):
             minkeyrate = min (minkeyrate , g[path[i]][path[i+1]].rate)
 
-        if req[2]==NULL: #Èç¹ûÇëÇóÖĞÖ»°üº¬ËÙÂÊ
+        if req[2]==NULL: #ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             return req[3]*10*(len(path)-1)
-        elif req[3]==NULL: #·ñÔòÖ»¿´ÃÜÔ¿Á¿
+        elif req[3]==NULL: #ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½
             return req[2]*(len(path)-1)
         else:
             return req[2]*(len(path)-1)
